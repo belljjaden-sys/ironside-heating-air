@@ -11,18 +11,41 @@ const reduceMotion =
   window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
   document.documentElement.classList.contains("still");
 
-/* ---------- Lead form: confirmation in place of a real submit ---------- */
+/* ---------- Lead form: submit to Netlify Forms, confirm in place ----------
+   We POST the fields to Netlify in the background (so the visitor keeps the
+   polished in-page "Thanks" message instead of Netlify's generic success page),
+   then reveal the confirmation. Netlify registers the form from the static HTML
+   (name="quote" + data-netlify), so submissions land in the Forms dashboard. */
 document.querySelectorAll("form[data-quote-form]").forEach((form) => {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const done = form.querySelector("[data-done]");
-    if (done) done.classList.remove("hidden");
     const button = form.querySelector('button[type="submit"]');
     if (button) {
-      button.textContent = "Request sent";
+      button.textContent = "Sending…";
       button.disabled = true;
-      button.classList.add("opacity-80");
     }
+
+    const body = new URLSearchParams(new FormData(form)).toString();
+    fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+    })
+      .then(() => {
+        if (done) done.classList.remove("hidden");
+        if (button) {
+          button.textContent = "Request sent";
+          button.classList.add("opacity-80");
+        }
+      })
+      .catch(() => {
+        // Network hiccup: let them retry rather than silently losing the lead.
+        if (button) {
+          button.textContent = "Try again";
+          button.disabled = false;
+        }
+      });
   });
 });
 

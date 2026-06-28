@@ -420,7 +420,10 @@
         </div>
 
         <div class="reveal rounded-sm border-t-4 border-safety bg-navy-800 p-6 shadow-float sm:p-8">
-          <form data-quote-form novalidate>
+          <form data-quote-form name="quote" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+            <!-- Netlify Forms: identifies this submission + silently traps spam bots. -->
+            <input type="hidden" name="form-name" value="quote" />
+            <p class="hidden"><label>Leave this empty: <input name="bot-field" /></label></p>
             <div class="grid grid-cols-1 gap-4">
               <div>
                 <label class="text-sm font-700" for="name">Full name</label>
