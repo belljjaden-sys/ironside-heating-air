@@ -1,0 +1,129 @@
+/* ============================================================
+   Ironside Heating & Air — custom styles
+   Utility classes live in the HTML (Tailwind). This file holds
+   the bespoke bits Tailwind doesn't give us: the expanded display
+   face, motion, scroll-snap, reveal-on-scroll, and texture.
+   "Bold Industrial" direction — dark navy + safety orange.
+   ============================================================ */
+
+:root { color-scheme: dark; }
+
+body {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Archivo carries a width axis — the display face uses the EXPANDED
+   instance (125%) for a blocky, mechanical headline look. We also set
+   it inline where needed, but this guarantees the stretch on .font-display. */
+.font-display { font-stretch: 125%; }
+
+/* Branded text selection */
+::selection { background: #FF7A00; color: #0C1A29; }
+
+/* Industrial eyebrow: a solid safety-orange block instead of a hairline rule */
+.eyebrow {
+  font-size: .72rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: .85rem;
+  height: .85rem;
+  background: currentColor;
+  vertical-align: -1px;
+  margin-right: .6rem;
+}
+
+/* Subtle grain over image panels for depth */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .35;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+}
+
+/* Gentle photo grade so stock shots feel consistent + a touch cooler */
+.img-treat { filter: saturate(1.04) contrast(1.05); }
+
+/* Link underline that wipes in on hover (animates background-size only) */
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 2px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size .3s ease;
+}
+.link-underline:hover { background-size: 100% 2px; }
+
+/* ---- Scroll-snap: each section settles into the frame (desktop/tablet) ---- */
+html { scroll-padding-top: 4.75rem; }
+@media (min-width: 768px) {
+  html { scroll-snap-type: y proximity; }
+  .snap-section { scroll-snap-align: start; }
+}
+
+/* ---- Reveal on scroll (only active when JS is present) ---- */
+.js .reveal,
+.js .reveal-group > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity .8s cubic-bezier(.22,.61,.36,1),
+              transform .8s cubic-bezier(.22,.61,.36,1);
+}
+.js .reveal.is-visible,
+.js .reveal-group.is-visible > * {
+  opacity: 1;
+  transform: none;
+}
+/* staggered children */
+.js .reveal-group.is-visible > *:nth-child(2) { transition-delay: .07s; }
+.js .reveal-group.is-visible > *:nth-child(3) { transition-delay: .14s; }
+.js .reveal-group.is-visible > *:nth-child(4) { transition-delay: .21s; }
+.js .reveal-group.is-visible > *:nth-child(5) { transition-delay: .28s; }
+.js .reveal-group.is-visible > *:nth-child(6) { transition-delay: .35s; }
+
+/* ---- Leaflet map theming ---- */
+/* Height in real CSS (not a Tailwind class) so the container has size the instant
+   Leaflet initialises — the Tailwind CDN applies its classes a tick later, which
+   would otherwise init the map at 0px tall and render a blank tile area. */
+#map { height: 380px; }
+@media (min-width: 1024px) { #map { height: 500px; } }
+.leaflet-container { background: #0A1623; font-family: "Archivo", system-ui, sans-serif; }
+.leaflet-container img { max-width: none !important; }  /* guard against CSS resets */
+/* Dark-mode the OSM tiles so they sit in the navy palette */
+.leaflet-tile { filter: invert(1) hue-rotate(185deg) brightness(0.95) contrast(0.92) saturate(0.7); }
+.ironside-pin svg { filter: drop-shadow(0 4px 5px rgba(0,0,0,.5)); }
+.leaflet-popup-content-wrapper { background: #11263A; color: #EAF2FA; border-radius: .25rem; }
+.leaflet-popup-tip { background: #11263A; }
+.leaflet-popup-content { margin: .6rem .85rem; font-size: .9rem; line-height: 1.35; }
+.leaflet-bar a { background: #11263A; color: #EAF2FA; border-color: #23415C; }
+.leaflet-bar a:hover { background: #15304A; color: #FF7A00; }
+.leaflet-control-attribution { background: rgba(10,22,35,.8) !important; color: #8DA2B8; font-size: 10px; }
+.leaflet-control-attribution a { color: #CBD9E8; }
+
+/* ---- Hero: slow Ken Burns drift ---- */
+.kenburns { animation: kenburns 24s ease-in-out infinite alternate; transform-origin: 55% 45%; }
+@keyframes kenburns {
+  from { transform: scale(1.0); }
+  to   { transform: scale(1.09); }
+}
+
+/* ---- ?still : freeze motion + show everything (used for screenshots) ---- */
+html.still *, html.still *::before, html.still *::after { animation: none !important; transition: none !important; }
+html.still .reveal, html.still .reveal-group > * { opacity: 1 !important; transform: none !important; }
+html.still { scroll-snap-type: none !important; }
+
+/* ---- Respect users who prefer reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  html { scroll-behavior: auto; scroll-snap-type: none; }
+  .js .reveal,
+  .js .reveal-group > * { opacity: 1 !important; transform: none !important; }
+}
